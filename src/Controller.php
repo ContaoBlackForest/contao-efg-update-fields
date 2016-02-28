@@ -12,17 +12,56 @@
 
 namespace ContaoBlackForest\EFG\UpdateFields\DataContainer;
 
+use Efg\FormdataBackend;
+
+/**
+ * Class Controller
+ *
+ * @package ContaoBlackForest\EFG\UpdateFields\DataContainer
+ */
 class Controller
 {
-    public function updateForm($value, \DataContainer $dc)
+    /**
+     * @param $table
+     */
+    public function initialiseFormDataDCA($table)
     {
-        $activeRecord = $dc->activeRecord;
-
-        $formularModel = \FormModel::findByPk($activeRecord->pid);
-        if (!$formularModel->storeFormdata) {
-            return $value;
+        if (TL_MODE !== 'BE'
+            || $table != 'tl_form_field'
+        ) {
+            return;
         }
 
-        return $value;
+        $formulaModel = \FormModel::findByPk(\Input::get('pid'));
+        if (!$formulaModel->storeFormdata) {
+            return;
+        }
+
+        $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array(
+            'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
+            'updateFormDataDCA'
+        );
+
+        return;
+    }
+
+    /**
+     * @param $buffer
+     * @param $template
+     *
+     * @return mixed
+     */
+    public function updateFormDataDCA($buffer, $template)
+    {
+        $formFieldId = \Input::get('id');
+        \Input::setGet('id', \Input::get('pid'));
+        $formTable = new \DC_Table('tl_form');
+
+        $formDataBackend = new FormdataBackend();
+        $formDataBackend->createFormdataDca($formTable);
+
+        \Input::setGet('id', $formFieldId);
+
+        return $buffer;
     }
 }
