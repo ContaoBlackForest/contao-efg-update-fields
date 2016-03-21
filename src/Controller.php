@@ -32,36 +32,37 @@ class Controller
             return;
         }
 
+        $this->handleBySave();
+    }
+
+    protected function handleBySave()
+    {
+        if (!\Input::post('save')) {
+            return;
+        }
+
         $formulaModel = \FormModel::findByPk(\Input::get('pid'));
         if (!$formulaModel->storeFormdata) {
             return;
         }
 
-        $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array(
+        $GLOBALS['TL_DCA']['tl_form_field']['config']['onsubmit_callback'][] = array(
             'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
-            'updateFormDataDCA'
+            'updateFormDataDCABySave'
         );
-
-        return;
     }
 
     /**
-     * @param $buffer
-     * @param $template
-     *
-     * @return mixed
+     * @param \DataContainer $dc
      */
-    public function updateFormDataDCA($buffer, $template)
+    public function updateFormDataDCABySave(\DataContainer $dc)
     {
-        $formFieldId = \Input::get('id');
-        \Input::setGet('id', \Input::get('pid'));
+        $activeRecord = $dc->activeRecord;
+
         $formTable = new \DC_Table('tl_form');
+        $formTable->id = $activeRecord->pid;
 
         $formDataBackend = new FormdataBackend();
         $formDataBackend->createFormdataDca($formTable);
-
-        \Input::setGet('id', $formFieldId);
-
-        return $buffer;
     }
 }
