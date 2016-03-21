@@ -113,7 +113,7 @@ class Controller
     {
         $activeRecord = $dc->activeRecord;
 
-        $formTable = new \DC_Table('tl_form');
+        $formTable     = new \DC_Table('tl_form');
         $formTable->id = $activeRecord->pid;
 
         $formDataBackend = new FormdataBackend();
