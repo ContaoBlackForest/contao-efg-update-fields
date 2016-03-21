@@ -48,7 +48,7 @@ class Controller
 
         $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array(
             'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
-            'updateFormDataDCA'
+            'updateFormDataDCAByCreate'
         );
     }
 
@@ -58,7 +58,7 @@ class Controller
      *
      * @return mixed
      */
-    public function updateFormDataDCA($buffer, $template)
+    public function updateFormDataDCAByCreate($buffer, $template)
     {
         $formFieldId = \Input::get('id');
         \Input::setGet('id', \Input::get('pid'));
