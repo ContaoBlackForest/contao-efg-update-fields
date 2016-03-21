@@ -27,12 +27,16 @@ class Controller
     public function initialiseFormDataDCA($table)
     {
         if (TL_MODE !== 'BE'
-            || $table != 'tl_form_field'
+            || \Input::get('do') !== 'form'
+            || \Input::get('table') !== 'tl_form_field'
         ) {
             return;
         }
 
         $this->handleBySave();
+        $this->handleBySaveAndClose();
+        $this->handleBySaveAndCreate();
+        $this->handleBySaveAndBack();
     }
 
     protected function handleBySave()
@@ -41,11 +45,62 @@ class Controller
             return;
         }
 
-        $formulaModel = \FormModel::findByPk(\Input::get('pid'));
+        $formulaFieldModel = \FormFieldModel::findByPk(\Input::get('id'));
+        $formulaModel = $formulaFieldModel->getRelated('pid');
         if (!$formulaModel->storeFormdata) {
             return;
         }
 
+        $this->registerOnSubmitCallback();
+    }
+
+    protected function handleBySaveAndClose()
+    {
+        if (!\Input::post('saveNclose')) {
+            return;
+        }
+
+        $formulaFieldModel = \FormFieldModel::findByPk(\Input::get('id'));
+        $formulaModel = $formulaFieldModel->getRelated('pid');
+        if (!$formulaModel->storeFormdata) {
+            return;
+        }
+
+        $this->registerOnSubmitCallback();
+    }
+
+    protected function handleBySaveAndCreate()
+    {
+        if (!\Input::post('saveNcreate')) {
+            return;
+        }
+
+        $formulaFieldModel = \FormFieldModel::findByPk(\Input::get('id'));
+        $formulaModel = $formulaFieldModel->getRelated('pid');
+        if (!$formulaModel->storeFormdata) {
+            return;
+        }
+
+        $this->registerOnSubmitCallback();
+    }
+
+    protected function handleBySaveAndBack()
+    {
+        if (!\Input::post('saveNback')) {
+            return;
+        }
+
+        $formulaFieldModel = \FormFieldModel::findByPk(\Input::get('id'));
+        $formulaModel = $formulaFieldModel->getRelated('pid');
+        if (!$formulaModel->storeFormdata) {
+            return;
+        }
+
+        $this->registerOnSubmitCallback();
+    }
+
+    protected function registerOnSubmitCallback()
+    {
         $GLOBALS['TL_DCA']['tl_form_field']['config']['onsubmit_callback'][] = array(
             'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
             'updateFormDataDCABySave'
@@ -59,7 +114,7 @@ class Controller
     {
         $activeRecord = $dc->activeRecord;
 
-        $formTable = new \DC_Table('tl_form');
+        $formTable     = new \DC_Table('tl_form');
         $formTable->id = $activeRecord->pid;
 
         $formDataBackend = new FormdataBackend();
