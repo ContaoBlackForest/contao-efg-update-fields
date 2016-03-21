@@ -27,7 +27,8 @@ class Controller
     public function initialiseFormDataDCA($table)
     {
         if (TL_MODE !== 'BE'
-            || $table != 'tl_form_field'
+            || \Input::get('do') !== 'form'
+            || \Input::get('table') !== 'tl_form_field'
         ) {
             return;
         }
