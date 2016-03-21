@@ -35,6 +35,7 @@ class Controller
         $this->handleBySave();
         $this->handleBySaveAndClose();
         $this->handleBySaveAndCreate();
+        $this->handleBySaveAndBack();
     }
 
     protected function handleBySave()
@@ -70,6 +71,21 @@ class Controller
     protected function handleBySaveAndCreate()
     {
         if (!\Input::post('saveNcreate')) {
+            return;
+        }
+
+        $formulaFieldModel = \FormFieldModel::findByPk(\Input::get('id'));
+        $formulaModel = $formulaFieldModel->getRelated('pid');
+        if (!$formulaModel->storeFormdata) {
+            return;
+        }
+
+        $this->registerOnSubmitCallback();
+    }
+
+    protected function handleBySaveAndBack()
+    {
+        if (!\Input::post('saveNback')) {
             return;
         }
 
