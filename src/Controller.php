@@ -33,6 +33,7 @@ class Controller
         }
 
         $this->handleByCreate();
+        $this->handleBySave();
     }
 
     protected function handleByCreate()
@@ -49,6 +50,23 @@ class Controller
         $GLOBALS['TL_HOOKS']['outputBackendTemplate'][] = array(
             'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
             'updateFormDataDCAByCreate'
+        );
+    }
+
+    protected function handleBySave()
+    {
+        if (!\Input::post('save')) {
+            return;
+        }
+
+        $formulaModel = \FormModel::findByPk(\Input::get('pid'));
+        if (!$formulaModel->storeFormdata) {
+            return;
+        }
+
+        $GLOBALS['TL_DCA']['tl_form_field']['config']['onsubmit_callback'][] = array(
+            'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
+            'updateFormDataDCABySave'
         );
     }
 
@@ -70,5 +88,19 @@ class Controller
         \Input::setGet('id', $formFieldId);
 
         return $buffer;
+    }
+
+    /**
+     * @param \DataContainer $dc
+     */
+    public function updateFormDataDCABySave(\DataContainer $dc)
+    {
+        $activeRecord = $dc->activeRecord;
+
+        $formTable = new \DC_Table('tl_form');
+        $formTable->id = $activeRecord->pid;
+
+        $formDataBackend = new FormdataBackend();
+        $formDataBackend->createFormdataDca($formTable);
     }
 }
