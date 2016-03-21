@@ -50,8 +50,6 @@ class Controller
             'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
             'updateFormDataDCA'
         );
-
-        return;
     }
 
     /**
