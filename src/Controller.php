@@ -32,6 +32,15 @@ class Controller
             return;
         }
 
+        $this->handleByCreate();
+    }
+
+    protected function handleByCreate()
+    {
+        if (\Input::get('act') !== 'create') {
+            return;
+        }
+
         $formulaModel = \FormModel::findByPk(\Input::get('pid'));
         if (!$formulaModel->storeFormdata) {
             return;
