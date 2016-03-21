@@ -41,11 +41,17 @@ class Controller
             return;
         }
 
-        $formulaModel = \FormModel::findByPk(\Input::get('pid'));
+        $formulaFieldModel = \FormFieldModel::findByPk(\Input::get('id'));
+        $formulaModel = $formulaFieldModel->getRelated('pid');
         if (!$formulaModel->storeFormdata) {
             return;
         }
 
+        $this->registerOnSubmitCallback();
+    }
+
+    protected function registerOnSubmitCallback()
+    {
         $GLOBALS['TL_DCA']['tl_form_field']['config']['onsubmit_callback'][] = array(
             'ContaoBlackForest\EFG\UpdateFields\DataContainer\Controller',
             'updateFormDataDCABySave'
